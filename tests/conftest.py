@@ -10,19 +10,23 @@ def browser():
     """Fixture for remote browser connection to Selenoid"""
     options = Options()
     options.add_argument("--start-maximized")
-    
-    driver = webdriver.Remote(
-        command_executor="https://user1:1234@selenoid.autotests.cloud/wd/hub",
-        options=options
-    )
 
-    # Если запускать локально
-    # driver = webdriver.Chrome()
+    remote = True  # Устанавливаем флаг для выбора между удаленным и локальным запуском
+
+    if remote:
+        driver = webdriver.Remote(
+            command_executor="https://user1:1234@selenoid.autotests.cloud/wd/hub",
+            options=options
+        )
+    else:
+        # Если запускать локально
+        driver = webdriver.Chrome()
     
     yield driver
 
-    attach.add_html(browser)
-    attach.add_logs(browser)
-    attach.add_screenshot(browser)
+
+    attach.add_logs(driver)
+    attach.add_screenshot(driver)
+    attach.add_html(driver)
 
     driver.quit()
