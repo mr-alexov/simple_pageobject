@@ -1,3 +1,5 @@
+import time
+
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -6,10 +8,10 @@ from selenium.webdriver.common.keys import Keys
 
 class DemoQAForm:
     """Page Object for DemoQA Practice Form"""
-    
+
     # URL
     URL = "https://demoqa.com/automation-practice-form"
-    
+
     # Locators
     FIRST_NAME = (By.ID, "firstName")
     LAST_NAME = (By.ID, "lastName")
@@ -26,33 +28,36 @@ class DemoQAForm:
     STATE = (By.ID, "state")
     CITY = (By.ID, "city")
     SUBMIT_BUTTON = (By.ID, "submit")
-    
+
     def __init__(self, driver):
         self.driver = driver
         self.wait = WebDriverWait(driver, 10)
-    
+
     def open(self):
         """Open the practice form page"""
         self.driver.get(self.URL)
-    
+        time.sleep(2)  # Wait for page to load
+        self.driver.execute_script("$('#fixedban').remove()")
+        self.driver.execute_script("$('footer').remove()")
+
     def fill_first_name(self, first_name):
         """Fill first name field"""
         element = self.wait.until(EC.visibility_of_element_located(self.FIRST_NAME))
         element.clear()
         element.send_keys(first_name)
-    
+
     def fill_last_name(self, last_name):
         """Fill last name field"""
         element = self.driver.find_element(*self.LAST_NAME)
         element.clear()
         element.send_keys(last_name)
-    
+
     def fill_email(self, email):
         """Fill email field"""
         element = self.driver.find_element(*self.EMAIL)
         element.clear()
         element.send_keys(email)
-    
+
     def select_gender(self, gender):
         """Select gender radio button
         Args:
@@ -63,13 +68,13 @@ class DemoQAForm:
         else:
             element = self.driver.find_element(*self.GENDER_FEMALE)
         element.click()
-    
+
     def fill_mobile(self, mobile):
         """Fill mobile number field"""
         element = self.driver.find_element(*self.MOBILE)
         element.clear()
         element.send_keys(mobile)
-    
+
     def fill_date_of_birth(self, date):
         """Fill date of birth
         Args:
@@ -80,7 +85,7 @@ class DemoQAForm:
         element.send_keys(Keys.CONTROL + "a")
         element.send_keys(date)
         element.send_keys(Keys.ENTER)
-    
+
     def fill_subjects(self, subjects):
         """Fill subjects field
         Args:
@@ -90,7 +95,7 @@ class DemoQAForm:
         for subject in subjects:
             element.send_keys(subject)
             element.send_keys(Keys.ENTER)
-    
+
     def select_hobbies(self, hobbies):
         """Select hobbies checkboxes
         Args:
@@ -104,13 +109,13 @@ class DemoQAForm:
         for hobby in hobbies:
             element = self.driver.find_element(*hobby_map[hobby.lower()])
             element.click()
-    
+
     def fill_current_address(self, address):
         """Fill current address field"""
         element = self.driver.find_element(*self.CURRENT_ADDRESS)
         element.clear()
         element.send_keys(address)
-    
+
     def select_state(self, state):
         """Select state from dropdown
         Args:
@@ -122,7 +127,7 @@ class DemoQAForm:
             EC.element_to_be_clickable((By.XPATH, f"//div[text()='{state}']"))
         )
         state_option.click()
-    
+
     def select_city(self, city):
         """Select city from dropdown
         Args:
@@ -134,13 +139,13 @@ class DemoQAForm:
             EC.element_to_be_clickable((By.XPATH, f"//div[text()='{city}']"))
         )
         city_option.click()
-    
+
     def submit_form(self):
         """Click submit button"""
         element = self.driver.find_element(*self.SUBMIT_BUTTON)
         self.driver.execute_script("arguments[0].scrollIntoView();", element)
         element.click()
-    
+
     def fill_complete_form(self, data):
         """Fill all form fields with provided data
         Args:
@@ -151,20 +156,33 @@ class DemoQAForm:
         self.fill_email(data.get('email', ''))
         self.select_gender(data.get('gender', 'male'))
         self.fill_mobile(data.get('mobile', ''))
-        
+
         if 'date_of_birth' in data:
             self.fill_date_of_birth(data['date_of_birth'])
-        
+
         if 'subjects' in data:
             self.fill_subjects(data['subjects'])
-        
+
         if 'hobbies' in data:
             self.select_hobbies(data['hobbies'])
-        
+
         self.fill_current_address(data.get('current_address', ''))
-        
+
         if 'state' in data:
             self.select_state(data['state'])
-        
+
         if 'city' in data:
             self.select_city(data['city'])
+
+    def is_results_modal_displayed(self):
+        """Check if the results modal is displayed
+        Returns:
+            bool: True if modal is visible, False otherwise
+        """
+        try:
+            modal = self.wait.until(
+                EC.visibility_of_element_located((By.CLASS_NAME, "modal-content"))
+            )
+            return modal.is_displayed()
+        except:
+            return False

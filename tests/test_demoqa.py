@@ -82,11 +82,8 @@ def test_fill_and_submit_form(browser):
     form.submit_form()
 
     # Wait for and verify submission modal appears
-    wait = WebDriverWait(browser, 10)
-    modal = wait.until(
-        EC.visibility_of_element_located((By.CLASS_NAME, "modal-content"))
-    )
-    assert modal.is_displayed()
+
+    assert form.is_results_modal_displayed()
 
 def test_state_and_city_selection(browser):
     """Test selecting state and city dropdowns"""
