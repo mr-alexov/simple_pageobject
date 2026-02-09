@@ -2,6 +2,8 @@ import pytest
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
+from helpers import attach
+
 
 @pytest.fixture
 def browser():
@@ -14,8 +16,13 @@ def browser():
         options=options
     )
 
+    # Если запускать локально
     # driver = webdriver.Chrome()
     
     yield driver
-    
+
+    attach.add_html(browser)
+    attach.add_logs(browser)
+    attach.add_screenshot(browser)
+
     driver.quit()
